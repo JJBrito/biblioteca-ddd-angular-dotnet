@@ -1,0 +1,189 @@
+<div class="page-container">
+  <section class="hero">
+    <div>
+      <span class="eyebrow">Biblioteca Digital</span>
+      <h1>Gestão de Livros</h1>
+      <p>
+        Cadastre, filtre e remova livros em uma aplicação Angular integrada com API .NET.
+      </p>
+    </div>
+
+    <div class="hero-icon">
+      <mat-icon>menu_book</mat-icon>
+    </div>
+  </section>
+
+  <mat-card class="card">
+    <div class="section-header">
+      <div>
+        <h2>Cadastrar livro</h2>
+        <p>Informe os dados principais da obra.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="livroForm" (ngSubmit)="salvar()" class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Título</mat-label>
+        <input matInput formControlName="titulo" />
+
+        <mat-error *ngIf="campoInvalido('titulo')">
+          O título é obrigatório.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Autor</mat-label>
+        <input matInput formControlName="autor" />
+
+        <mat-error *ngIf="campoInvalido('autor')">
+          O autor é obrigatório.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Gênero</mat-label>
+        <input matInput formControlName="genero" />
+
+        <mat-error *ngIf="campoInvalido('genero')">
+          O gênero é obrigatório.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ano de publicação</mat-label>
+        <input matInput type="number" formControlName="anoPublicacao" />
+
+        <mat-error *ngIf="campoInvalido('anoPublicacao')">
+          Informe um ano válido.
+        </mat-error>
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="carregando"
+      >
+        <mat-icon>add</mat-icon>
+        Cadastrar
+      </button>
+    </form>
+  </mat-card>
+
+  <mat-card class="card">
+    <div class="section-header">
+      <div>
+        <h2>Filtrar livros</h2>
+        <p>Pesquise por título, autor ou gênero.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="filtroForm" class="form-grid filter-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Título</mat-label>
+        <input matInput formControlName="titulo" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Autor</mat-label>
+        <input matInput formControlName="autor" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Gênero</mat-label>
+        <input matInput formControlName="genero" />
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="carregando"
+        (click)="filtrar()"
+      >
+        <mat-icon>search</mat-icon>
+        Filtrar
+      </button>
+
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="carregando"
+        (click)="limparFiltro()"
+      >
+        <mat-icon>refresh</mat-icon>
+        Limpar
+      </button>
+    </form>
+  </mat-card>
+
+  <mat-card class="card">
+    <div class="section-header">
+      <div>
+        <h2>Livros cadastrados</h2>
+        <p>{{ livros.length }} livro(s) encontrado(s).</p>
+      </div>
+    </div>
+
+    <div *ngIf="carregando" class="loading-container">
+      <mat-spinner diameter="42"></mat-spinner>
+      <span>Carregando dados...</span>
+    </div>
+
+    <div *ngIf="!carregando && livros.length === 0" class="empty-state">
+      <mat-icon>auto_stories</mat-icon>
+      <h3>Nenhum livro encontrado</h3>
+      <p>Cadastre um novo livro ou ajuste os filtros de pesquisa.</p>
+    </div>
+
+    <div *ngIf="!carregando && livros.length > 0" class="table-wrapper">
+      <table mat-table [dataSource]="livros" class="mat-elevation-z1">
+        <ng-container matColumnDef="titulo">
+          <th mat-header-cell *matHeaderCellDef>Título</th>
+          <td mat-cell *matCellDef="let livro">{{ livro.titulo }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="autor">
+          <th mat-header-cell *matHeaderCellDef>Autor</th>
+          <td mat-cell *matCellDef="let livro">{{ livro.autor }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="genero">
+          <th mat-header-cell *matHeaderCellDef>Gênero</th>
+          <td mat-cell *matCellDef="let livro">{{ livro.genero }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="anoPublicacao">
+          <th mat-header-cell *matHeaderCellDef>Ano</th>
+          <td mat-cell *matCellDef="let livro">{{ livro.anoPublicacao }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="disponivel">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let livro">
+            <span class="status-chip">
+              {{ livro.disponivel ? 'Disponível' : 'Indisponível' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let livro">
+            <button
+              mat-icon-button
+              color="warn"
+              [disabled]="carregando"
+              (click)="remover(livro.id)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  </mat-card>
+</div>
