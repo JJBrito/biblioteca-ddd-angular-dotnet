@@ -1,0 +1,27 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+
+# Angular
+node_modules/
+dist/
+
+# Logs
+*.log
+
+# User files
+*.user
+*.suo
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Angular cache
+.angular/
+
+# Windows
+Thumbs.db
